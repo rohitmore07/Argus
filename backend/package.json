@@ -4,12 +4,13 @@
   "private": true,
   "description": "PR Sentinel Express.js + TypeScript + MongoDB + BullMQ + Gemini AI Backend",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
-    "start": "node dist/server.js",
-    "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc --noEmit -p tsconfig.json",
-    "test": "vitest run",
-    "test:watch": "vitest"
+  "dev": "tsx watch src/server.ts",
+  "start": "node dist/server.js",
+  "start:worker": "node dist/worker.js",
+  "build": "tsc -p tsconfig.json",
+  "typecheck": "tsc --noEmit -p tsconfig.json",
+  "test": "vitest run",
+  "test:watch": "vitest"
   },
   "dependencies": {
     "@google/genai": "^1.52.0",

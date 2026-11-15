@@ -1,7 +1,7 @@
 import type { NextConfig } from 'next';
 
 const backendInternalUrl =
-  process.env.BACKEND_INTERNAL_URL || 'http://127.0.0.1:4000';
+  process.env.BACKEND_INTERNAL_URL || 'https://argus-c3lw.onrender.com';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,

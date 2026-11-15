@@ -10,21 +10,43 @@ import { AuthenticationError } from '../utils/errors';
 
 const OAUTH_NONCE_COOKIE = 'pr_sentinel_oauth_nonce';
 
+const nonceCookieOptions = {
+  httpOnly: true,
+  sameSite: 'lax' as const,
+  secure: env.COOKIE_SECURE,
+  path: '/',
+};
+
+const sessionCookieOptions = {
+  httpOnly: true,
+  sameSite: 'lax' as const,
+  secure: env.COOKIE_SECURE,
+  path: '/',
+};
+
+function frontendUrl(path: string): string {
+  return new URL(path, env.FRONTEND_URL).toString();
+}
+
+function safeReturnPath(value: string): string {
+  if (!value.startsWith('/') || value.startsWith('//') || value.includes('\\')) {
+    return '/';
+  }
+  return value;
+}
+
 export async function startGitHubOAuth(
   req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> {
   try {
-    const returnTo = typeof req.query.returnTo === 'string' ? req.query.returnTo : '/';
+    const returnTo = typeof req.query.returnTo === 'string' ? safeReturnPath(req.query.returnTo) : '/';
     const { url, nonce } = buildGitHubAuthorizationUrl(returnTo);
 
     res.cookie(OAUTH_NONCE_COOKIE, nonce, {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: env.COOKIE_SECURE,
+      ...nonceCookieOptions,
       maxAge: 10 * 60 * 1000,
-      path: '/',
     });
 
     res.redirect(url);
@@ -38,16 +60,19 @@ export async function githubOAuthCallback(
   res: Response,
   next: NextFunction
 ): Promise<void> {
+  // The nonce cookie is single-use, so clear it on every outcome.
+  res.clearCookie(OAUTH_NONCE_COOKIE, nonceCookieOptions);
+
+  const code = typeof req.query.code === 'string' ? req.query.code : '';
+  const state = typeof req.query.state === 'string' ? req.query.state : '';
+  const oauthError = typeof req.query.error === 'string' ? req.query.error : '';
+
+  if (oauthError) {
+    res.redirect(frontendUrl(`/?authError=${encodeURIComponent(oauthError)}`));
+    return;
+  }
+
   try {
-    const code = typeof req.query.code === 'string' ? req.query.code : '';
-    const state = typeof req.query.state === 'string' ? req.query.state : '';
-    const oauthError = typeof req.query.error === 'string' ? req.query.error : '';
-
-    if (oauthError) {
-      res.redirect(`/?authError=${encodeURIComponent(oauthError)}`);
-      return;
-    }
-
     if (!code || !state) {
       throw new AuthenticationError('Missing GitHub OAuth code or state parameter');
     }
@@ -59,24 +84,24 @@ export async function githubOAuthCallback(
       expectedNonce,
     });
 
-    res.clearCookie(OAUTH_NONCE_COOKIE, { path: '/' });
     res.cookie(SESSION_COOKIE_NAME, sessionToken, {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: env.COOKIE_SECURE,
+      ...sessionCookieOptions,
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      path: '/',
     });
 
-    const safeRedirect = returnTo.startsWith('/') && !returnTo.startsWith('//') ? returnTo : '/';
-    res.redirect(safeRedirect);
+    res.redirect(frontendUrl(safeReturnPath(returnTo)));
   } catch (err) {
+    if (err instanceof AuthenticationError) {
+      console.warn('GitHub OAuth failed:', err.message);
+      res.redirect(frontendUrl('/?authError=github_auth_failed'));
+      return;
+    }
     next(err);
   }
 }
 
 export async function logout(_req: Request, res: Response): Promise<void> {
-  res.clearCookie(SESSION_COOKIE_NAME, { path: '/' });
+  res.clearCookie(SESSION_COOKIE_NAME, sessionCookieOptions);
   res.json({ success: true, message: 'Signed out successfully' });
 }
 

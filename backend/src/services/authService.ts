@@ -45,8 +45,8 @@ export async function handleGitHubOAuthCallback(params: {
   if (!verifiedState) {
     throw new AuthenticationError('Invalid or expired OAuth state parameter');
   }
-  if (params.expectedNonce && verifiedState.nonce !== params.expectedNonce) {
-    throw new AuthenticationError('OAuth CSRF nonce mismatch');
+  if (!params.expectedNonce || verifiedState.nonce !== params.expectedNonce) {
+  throw new AuthenticationError('OAuth CSRF nonce mismatch');
   }
 
   const { accessToken } = await GitHubClient.exchangeOAuthCode(params.code);

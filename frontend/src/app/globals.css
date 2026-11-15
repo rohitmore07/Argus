@@ -1,0 +1,155 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root,
+  .dark {
+    --background: 240 16% 2.6%;
+    --foreground: 0 0% 96%;
+    --surface: 240 11% 5.2%;
+    --surface-subtle: 240 10% 4%;
+    --surface-elevated: 240 9% 8.2%;
+    --surface-hover: 240 8% 11.2%;
+    --border: 240 6% 13.5%;
+    --border-strong: 240 6% 20%;
+    --input: 240 6% 15.5%;
+    --ring: 239 84% 67%;
+    --primary: 239 84% 67%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 7% 12.5%;
+    --secondary-foreground: 0 0% 92%;
+    --muted: 240 7% 10.5%;
+    --muted-foreground: 240 5% 56%;
+    --accent: 240 7% 14%;
+    --accent-foreground: 0 0% 97%;
+    --destructive: 0 74% 55%;
+    --destructive-foreground: 0 0% 98%;
+    --radius: 0.625rem;
+    --spotlight-color: rgba(129, 140, 248, 0.085);
+    --grid-line: rgba(255, 255, 255, 0.035);
+    --specular-top: rgba(255, 255, 255, 0.06);
+    color-scheme: dark;
+  }
+
+  .light {
+    --background: 240 14% 97.5%;
+    --foreground: 240 14% 8%;
+    --surface: 0 0% 100%;
+    --surface-subtle: 240 12% 96%;
+    --surface-elevated: 0 0% 100%;
+    --surface-hover: 240 8% 94.5%;
+    --border: 240 8% 88.5%;
+    --border-strong: 240 7% 79%;
+    --input: 240 8% 85%;
+    --ring: 239 84% 58%;
+    --primary: 239 84% 58%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 7% 93.5%;
+    --secondary-foreground: 240 12% 14%;
+    --muted: 240 7% 94.5%;
+    --muted-foreground: 240 5% 43%;
+    --accent: 240 7% 92%;
+    --accent-foreground: 240 12% 10%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --radius: 0.625rem;
+    --spotlight-color: rgba(99, 102, 241, 0.07);
+    --grid-line: rgba(15, 23, 42, 0.045);
+    --specular-top: rgba(255, 255, 255, 0.9);
+    color-scheme: light;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased selection:bg-indigo-500/25 selection:text-foreground;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    text-rendering: optimizeLegibility;
+  }
+}
+
+@layer utilities {
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Subtle top specular bevel inspired by Linear & Raycast panels */
+  .panel-surface {
+    background-color: hsl(var(--surface));
+    box-shadow: inset 0 1px 0 0 var(--specular-top);
+  }
+
+  .panel-elevated {
+    background-color: hsl(var(--surface-elevated));
+    box-shadow:
+      inset 0 1px 0 0 var(--specular-top),
+      0 14px 36px -18px rgba(0, 0, 0, 0.6);
+  }
+
+  /* Architectural micro-grid backdrop */
+  .bg-sentinel-grid {
+    background-image:
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  /* Fine dot matrix for technical panels */
+  .bg-sentinel-dots {
+    background-image: radial-gradient(var(--grid-line) 1px, transparent 1px);
+    background-size: 16px 16px;
+  }
+
+  /* Ultra-subtle film grain overlay using embedded SVG data URI (works offline / sandboxed) */
+  .bg-sentinel-noise {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  }
+
+  /* Refined shimmer skeleton */
+  .skeleton-shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted) / 0.55) 0%,
+      hsl(var(--surface-hover) / 0.9) 50%,
+      hsl(var(--muted) / 0.55) 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2.2s linear infinite;
+  }
+}
+
+/* Ambient canvas glow in dark mode */
+.dark .sentinel-ambient-bg {
+  background:
+    radial-gradient(ellipse 65% 42% at 50% -12%, rgba(99, 102, 241, 0.12), transparent 72%),
+    radial-gradient(ellipse 40% 30% at 85% 0%, rgba(16, 185, 129, 0.045), transparent 65%);
+}
+
+.light .sentinel-ambient-bg {
+  background:
+    radial-gradient(ellipse 65% 42% at 50% -12%, rgba(99, 102, 241, 0.08), transparent 72%),
+    radial-gradient(ellipse 40% 30% at 85% 0%, rgba(16, 185, 129, 0.04), transparent 65%);
+}
+
+/* Crisp developer scrollbars */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border-strong) / 0.7);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}

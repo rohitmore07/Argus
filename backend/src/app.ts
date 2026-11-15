@@ -23,7 +23,7 @@ export function createApp() {
       origin: (origin, callback) => {
         // Allow server-to-server, proxied same-origin, or explicitly configured frontend origin
         if (!origin) return callback(null, true);
-        const allowed = [env.FRONTEND_URL, 'http://localhost:3000', 'http://127.0.0.1:3000'];
+        const allowed = [env.FRONTEND_URL, 'http://localhost:3000', 'http://127.0.0.1:3000', 'https://argus-agent-frontend.vercel.app'];
         if (allowed.includes(origin) || /\.e2b\.app$/.test(new URL(origin).hostname)) {
           return callback(null, true);
         }
